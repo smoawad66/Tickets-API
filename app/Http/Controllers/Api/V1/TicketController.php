@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\StoreTicketRequest;
 use App\Http\Requests\Api\V1\UpdateTicketRequest;
 use App\Models\Ticket;
 use App\Http\Resources\V1\TicketResource;
+use App\Models\User;
 use App\Traits\ApiChecks;
 
 class TicketController extends Controller

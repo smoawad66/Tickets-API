@@ -41,10 +41,4 @@ class AuthController extends Controller
 
         return $this->ok('');
     }
-
-
-    public function register()
-    {
-        // return $this->ok('Hello world');
-    }
 }
