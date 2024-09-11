@@ -11,7 +11,7 @@ class StoreTicketRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,20 @@ class StoreTicketRequest extends FormRequest
      */
     public function rules(): array
     {
+        $rules = [
+            'data.attributes.title' => 'required|string',
+            'data.attributes.description' => 'required|string',
+            'data.attributes.status' => 'required|in:Active,Hold,Completed,Canceled',
+        ];
+        if ($this->routeIs('tickets.store')) {
+            $rules['data.relationships.author.data.id'] = 'required|integer|exists:users,id';
+        }
+        return $rules;
+    }
+    public function messages()
+    {
         return [
-            //
+            'data.attributes.status.in' => 'The attribiute data.attributes.status should be Active, Hold, Completed or Canceled',
         ];
     }
 }

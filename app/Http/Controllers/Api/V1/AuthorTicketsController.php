@@ -4,17 +4,34 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Filters\V1\TicketFilter;
+use App\Http\Requests\Api\V1\StoreTicketRequest;
 use App\Http\Resources\V1\TicketResource;
 use App\Models\Ticket;
+use App\Models\User;
+use App\Traits\ApiResponses;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AuthorTicketsController extends Controller
 {
-    public function index($author_id, TicketFilter $filters)
+    use ApiResponses;
+    public function index($authorId, TicketFilter $filters)
     {
         return TicketResource::collection(
-            Ticket::where('user_id', $author_id)
+            Ticket::where('user_id', $authorId)
                 ->filter($filters)
                 ->paginate()
         );
+    }
+
+    public function store($authorId, StoreTicketRequest $request) {
+        try {
+            User::findOrfail($authorId);
+        } catch (ModelNotFoundException) {
+            return $this->ok('User not found', [
+                'error' => "No user with id {$authorId} exists."
+            ]);
+        }
+        $newTicket = array_merge($request['data.attributes'], ['user_id' => $authorId]);
+        return new TicketResource(Ticket::create($newTicket));
     }
 }
