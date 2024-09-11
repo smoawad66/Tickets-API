@@ -6,6 +6,14 @@ use App\Models\Ticket;
 
 class TicketFilter extends QueryFilter {
 
+    protected $sortable = [
+        'title',
+        'status',
+        'id',
+        'createdAt' => 'created_at',
+        'updatedAt' => 'updated_at',
+    ];
+
     public function include($value) {
         if(method_exists(Ticket::class, $value)) {
             $this->builder->with($value);
