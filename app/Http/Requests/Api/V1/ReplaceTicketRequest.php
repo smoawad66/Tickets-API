@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTicketRequest extends BaseTicketRequest
+class ReplaceTicketRequest extends BaseTicketRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,12 +22,12 @@ class UpdateTicketRequest extends BaseTicketRequest
     public function rules(): array
     {
         $rules = [
-            'data.attributes.title' => 'sometimes|string',
-            'data.attributes.description' => 'sometimes|string',
-            'data.attributes.status' => 'sometimes|in:Active,Hold,Completed,Canceled',
+            'data.attributes.title' => 'required|string',
+            'data.attributes.description' => 'required|string',
+            'data.attributes.status' => 'required|in:Active,Hold,Completed,Canceled',
         ];
-        if ($this->routeIs('tickets.update')) {
-            $rules['data.relationships.author.data.id'] = 'sometimes|integer|exists:users,id';
+        if ($this->routeIs('tickets.replace')) {
+            $rules['data.relationships.author.data.id'] = 'required|integer|exists:users,id';
         }
         return $rules;
     }
