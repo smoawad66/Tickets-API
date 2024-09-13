@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
 use App\Http\Filters\V1\TicketFilter;
 use App\Http\Requests\Api\V1\ReplaceTicketRequest;
 use App\Http\Requests\Api\V1\StoreTicketRequest;
@@ -10,17 +9,20 @@ use App\Http\Requests\Api\V1\UpdateTicketRequest;
 use App\Models\Ticket;
 use App\Http\Resources\V1\TicketResource;
 use App\Models\User;
-use App\Traits\ApiChecks;
+use App\Policies\V1\TicketPolicy;
 use App\Traits\ApiResponses;
-use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class TicketController extends Controller
+class TicketController extends ApiController
 {
+
+    protected $policyClass = TicketPolicy::class;
+
     /**
      * Display a listing of the resource.
      */
-    use ApiChecks, ApiResponses;
+    use ApiResponses;
     public function index(TicketFilter $filters)
     {
         return TicketResource::collection(Ticket::filter($filters)->paginate());
@@ -63,7 +65,6 @@ class TicketController extends Controller
     public function replace(ReplaceTicketRequest $request, $ticketId)
     {
         try {
-            /** @var Ticket */
             $ticket = Ticket::findOrFail($ticketId);
         } catch (ModelNotFoundException) {
             return $this->error("Ticket cannot be found!", 404);
@@ -77,8 +78,12 @@ class TicketController extends Controller
     {
         try {
             $ticket = Ticket::findOrfail($ticketId);
+            $this->isAble('update', $ticket);
+
         } catch (ModelNotFoundException) {
             return $this->error("Ticket cannot be found!", 404);
+        } catch (AuthorizationException) {
+            return $this->error("You are not authorized to update this ticket!", 401);
         }
 
         $ticket->update($request->mappedAttributes());

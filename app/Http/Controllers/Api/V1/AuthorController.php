@@ -12,13 +12,13 @@ use App\Traits\ApiChecks;
 use App\Traits\ApiResponses;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class AuthorController extends Controller
+class AuthorController extends ApiController
 {
     /**
      * Display a listing of the resource.
      */
 
-    use ApiChecks, ApiResponses;
+    use ApiResponses;
     public function index(AuthorFilter $filters)
     {
         return UserResource::collection(User::filter($filters)->paginate());
