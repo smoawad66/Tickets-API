@@ -16,9 +16,8 @@ class ApiController extends Controller
         return in_array(strtolower($relationship), $includedValues);
     }
 
-    protected function isAble($ability, $targetModel)
+    protected function isAble($ability, $targetModel, $author_id = null)
     {
-        return Gate::authorize($ability, [$targetModel, $this->policyClass]);
+        return Gate::authorize($ability, [$targetModel, $author_id, $this->policyClass]);
     }
-
 }

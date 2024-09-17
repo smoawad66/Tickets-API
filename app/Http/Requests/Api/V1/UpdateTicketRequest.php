@@ -25,8 +25,15 @@ class UpdateTicketRequest extends BaseTicketRequest
             'data.attributes.description' => 'sometimes|string',
             'data.attributes.status' => 'sometimes|in:Active,Hold,Completed,Canceled',
         ];
+
         if ($this->routeIs('tickets.update')) {
-            $rules['data.relationships.author.data.id'] = 'sometimes|integer|exists:users,id';
+            if ($this->user()->tokenCan("ticket:own:update")) {
+                $rules['data.relationships.author.data.id'] = 'prohibited';
+            } else {
+                $rules['data.relationships.author.data.id'] = 'sometimes|integer|exists:users,id';
+            }
+        } else {
+            $rules['data.relationships.author.data.id'] = 'prohibited';
         }
         return $rules;
     }

@@ -14,12 +14,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         $users = User::factory(10)->create();
 
         Ticket::factory(100)
             ->recycle($users)
             ->create();
+
+        User::factory()->create([
+            'email' => 'manager@gmail.com',
+            'password' => 'password',
+            'is_manager' => true
+        ]);
     }
 }

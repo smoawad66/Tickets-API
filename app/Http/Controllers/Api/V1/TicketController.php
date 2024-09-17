@@ -8,7 +8,6 @@ use App\Http\Requests\Api\V1\StoreTicketRequest;
 use App\Http\Requests\Api\V1\UpdateTicketRequest;
 use App\Models\Ticket;
 use App\Http\Resources\V1\TicketResource;
-use App\Models\User;
 use App\Policies\V1\TicketPolicy;
 use App\Traits\ApiResponses;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -34,9 +33,9 @@ class TicketController extends ApiController
     public function store(StoreTicketRequest $request)
     {
         try {
-            User::findOrfail($request->input('data.relationships.author.data.id'));
-        } catch (ModelNotFoundException) {
-            return $this->ok('User not found!');
+            $this->isAble('store', Ticket::class);
+        } catch (AuthorizationException) {
+            return $this->error("You are not authorized to create this ticket!", 401);
         }
         return new TicketResource(Ticket::create($request->mappedAttributes()));
     }
@@ -66,6 +65,7 @@ class TicketController extends ApiController
     {
         try {
             $ticket = Ticket::findOrFail($ticketId);
+            $this->isAble('replace', $ticket);
         } catch (ModelNotFoundException) {
             return $this->error("Ticket cannot be found!", 404);
         }
@@ -78,6 +78,7 @@ class TicketController extends ApiController
     {
         try {
             $ticket = Ticket::findOrfail($ticketId);
+            $attributes = $request->mappedAttributes();
             $this->isAble('update', $ticket);
 
         } catch (ModelNotFoundException) {
@@ -85,8 +86,7 @@ class TicketController extends ApiController
         } catch (AuthorizationException) {
             return $this->error("You are not authorized to update this ticket!", 401);
         }
-
-        $ticket->update($request->mappedAttributes());
+        $ticket->update($attributes);
         return new TicketResource($ticket);
     }
 
@@ -96,7 +96,9 @@ class TicketController extends ApiController
     public function destroy($ticketId)
     {
         try {
-            Ticket::findOrFail($ticketId)->delete();
+            $ticket = Ticket::findOrFail($ticketId);
+            $this->isAble('destroy', $ticket);
+            $ticket->delete();
         } catch (ModelNotFoundException) {
             return $this->error("Ticket cannot be found!", 404);
         }

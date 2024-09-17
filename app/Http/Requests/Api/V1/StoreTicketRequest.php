@@ -26,8 +26,15 @@ class StoreTicketRequest extends BaseTicketRequest
             'data.attributes.status' => 'required|in:Active,Hold,Completed,Canceled',
         ];
         if ($this->routeIs('tickets.store')) {
-            $rules['data.relationships.author.data.id'] = 'required|integer|exists:users,id';
+            $rules['data.relationships.author.data.id'] = 'required|integer|' . (
+                $this->user()->tokenCan('ticket:own:create') ?
+                "size:{$this->user()->id}" :
+                'exists:users,id'
+            );
+        } else {
+            $rules['data.relationships.author.data.id'] = 'prohibited';
         }
+
         return $rules;
     }
 }
