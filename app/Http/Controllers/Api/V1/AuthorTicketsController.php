@@ -35,7 +35,7 @@ class AuthorTicketsController extends ApiController
     {
         try {
             User::findOrfail($author_id);
-            $this->isAble('store', Ticket::class, $author_id);
+            $this->isAble('store', Ticket::class);
         } catch (ModelNotFoundException) {
             return $this->ok('User not found!');
         } catch (AuthorizationException) {
@@ -97,7 +97,7 @@ class AuthorTicketsController extends ApiController
                 'user_id' => $author_id
             ])->firstOrFail();
 
-            $this->isAble('update', $ticket);
+            $this->isAble('destroy', $ticket);
         } catch (ModelNotFoundException) {
             return $this->error("Ticket cannot be found!", 404);
         } catch (AuthorizationException) {

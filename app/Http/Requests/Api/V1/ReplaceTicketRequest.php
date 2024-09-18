@@ -25,10 +25,8 @@ class ReplaceTicketRequest extends BaseTicketRequest
             'data.attributes.title' => 'required|string',
             'data.attributes.description' => 'required|string',
             'data.attributes.status' => 'required|in:Active,Hold,Completed,Canceled',
+            'data.relationships.author.data.id' => 'sometimes|integer|exists:users,id',
         ];
-        if ($this->routeIs('tickets.replace')) {
-            $rules['data.relationships.author.data.id'] = 'required|integer|exists:users,id';
-        }
         return $rules;
     }
 }

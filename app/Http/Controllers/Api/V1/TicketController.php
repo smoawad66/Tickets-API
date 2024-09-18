@@ -68,6 +68,8 @@ class TicketController extends ApiController
             $this->isAble('replace', $ticket);
         } catch (ModelNotFoundException) {
             return $this->error("Ticket cannot be found!", 404);
+        } catch (AuthorizationException) {
+            return $this->error("You are not authorized to replace this ticket!", 401);
         }
 
         $ticket->update($request->mappedAttributes());
@@ -78,14 +80,13 @@ class TicketController extends ApiController
     {
         try {
             $ticket = Ticket::findOrfail($ticketId);
-            $attributes = $request->mappedAttributes();
             $this->isAble('update', $ticket);
-
         } catch (ModelNotFoundException) {
             return $this->error("Ticket cannot be found!", 404);
         } catch (AuthorizationException) {
             return $this->error("You are not authorized to update this ticket!", 401);
         }
+        $attributes = $request->mappedAttributes();
         $ticket->update($attributes);
         return new TicketResource($ticket);
     }
@@ -98,11 +99,12 @@ class TicketController extends ApiController
         try {
             $ticket = Ticket::findOrFail($ticketId);
             $this->isAble('destroy', $ticket);
-            $ticket->delete();
         } catch (ModelNotFoundException) {
             return $this->error("Ticket cannot be found!", 404);
+        } catch (AuthorizationException) {
+            return $this->error("You are not authorized to delete this ticket!", 401);
         }
-
+        $ticket->delete();
         return $this->ok('Ticket deleted!');
     }
 }

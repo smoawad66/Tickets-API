@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
 use App\Http\Filters\V1\AuthorFilter;
 use App\Models\User;
 use App\Http\Requests\Api\V1\StoreUserRequest;
 use App\Http\Requests\Api\V1\UpdateUserRequest;
 use App\Http\Resources\V1\UserResource;
-use App\Traits\ApiChecks;
 use App\Traits\ApiResponses;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -21,24 +19,20 @@ class AuthorController extends ApiController
     use ApiResponses;
     public function index(AuthorFilter $filters)
     {
-        return UserResource::collection(User::filter($filters)->paginate());
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreUserRequest $request)
-    {
-        //
+        return UserResource::collection(
+            User::select('users.*')
+            ->join('tickets', 'users.id', '=', 'tickets.user_id')
+            ->filter($filters)->distinct()->paginate()
+        );
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($authorId)
+    public function show($author_id)
     {
         try {
-            $author = User::findOrfail($authorId);
+            $author = User::findOrfail($author_id);
         } catch (ModelNotFoundException) {
             return $this->ok('User not found!');
         }
@@ -48,21 +42,5 @@ class AuthorController extends ApiController
         }
 
         return new UserResource($author);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateUserRequest $request, User $author)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(User $author)
-    {
-        //
     }
 }

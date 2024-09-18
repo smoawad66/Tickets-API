@@ -15,8 +15,10 @@ class TicketPolicy
         //
     }
 
-    public function store(User $user, $author_id): bool
+    public function store(User $user): bool
     {
+        $author_id = request()->route('author');
+
         return $user->tokenCan('ticket:create') ||
             $user->tokenCan('ticket:own:create') && ($user->id == $author_id || $author_id == null);
     }
@@ -34,7 +36,7 @@ class TicketPolicy
         );
     }
 
-    public function delete(User $user, Ticket $ticket): bool
+    public function destroy(User $user, Ticket $ticket): bool
     {
         return (
             $user->tokenCan('ticket:delete') ||

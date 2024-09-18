@@ -14,6 +14,11 @@ final class Abilities
             'ticket:update',
             'ticket:replace',
             'ticket:delete',
+
+            'user:create',
+            'user:update',
+            'user:replace',
+            'user:delete',
         ] : [
             'ticket:own:create',
             'ticket:own:update',
