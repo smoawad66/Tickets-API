@@ -2,18 +2,9 @@
 
 namespace App\Http\Requests\Api\V1;
 
-use Illuminate\Foundation\Http\FormRequest;
 
 class ReplaceTicketRequest extends BaseTicketRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -21,12 +12,11 @@ class ReplaceTicketRequest extends BaseTicketRequest
      */
     public function rules(): array
     {
-        $rules = [
+        return [
             'data.attributes.title' => 'required|string',
             'data.attributes.description' => 'required|string',
             'data.attributes.status' => 'required|in:Active,Hold,Completed,Canceled',
-            'data.relationships.author.data.id' => 'sometimes|integer|exists:users,id',
+            'data.relationships.author.data.id' => 'required|integer|exists:users,id',
         ];
-        return $rules;
     }
 }

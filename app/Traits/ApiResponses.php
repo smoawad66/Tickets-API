@@ -2,6 +2,9 @@
 
 namespace App\Traits;
 
+use App\Models\User;
+use App\Permissions\V1\Abilities;
+
 trait ApiResponses
 {
 
@@ -19,11 +22,28 @@ trait ApiResponses
         ], $statusCode);
     }
 
-    protected function error($message, $statusCode)
+    protected function error($errors, $status_code = 200)
     {
+        if (is_string($errors)) {
+            return response()->json([
+                'message' => $errors,
+                'status' => $status_code
+            ], $status_code);
+        }
+
         return response()->json([
-            'message' => $message,
-            'status' => $statusCode
-        ], $statusCode);
+            'errors' => $errors
+        ], $status_code);
+    }
+
+    protected function unauthorized($message)
+    {
+        return $this->error([
+            [
+                'status' => 401,
+                'message' => $message,
+                'source' => '',
+            ]
+        ]);
     }
 }

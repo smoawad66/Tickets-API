@@ -11,7 +11,12 @@ class Ticket extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'title',
+        'status',
+        'description',
+        'user_id',
+    ];
 
     public function author() {
         return $this->belongsTo(User::class, 'user_id');

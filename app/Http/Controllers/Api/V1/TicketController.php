@@ -10,47 +10,20 @@ use App\Models\Ticket;
 use App\Http\Resources\V1\TicketResource;
 use App\Policies\V1\TicketPolicy;
 use App\Traits\ApiResponses;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TicketController extends ApiController
 {
+    use ApiResponses;
 
     protected $policyClass = TicketPolicy::class;
 
-    /**
-     * Display a listing of the resource.
-     */
-    use ApiResponses;
     public function index(TicketFilter $filters)
     {
         return TicketResource::collection(Ticket::filter($filters)->paginate());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreTicketRequest $request)
+    public function show(Ticket $ticket)
     {
-        try {
-            $this->isAble('store', Ticket::class);
-        } catch (AuthorizationException) {
-            return $this->error("You are not authorized to create this ticket!", 401);
-        }
-        return new TicketResource(Ticket::create($request->mappedAttributes()));
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show($ticketId)
-    {
-        try {
-            $ticket = Ticket::findOrFail($ticketId);
-        } catch (ModelNotFoundException) {
-            return $this->error("Ticket cannot be found!", 404);
-        }
-
         if ($this->include('author')) {
             return new TicketResource($ticket->load('author'));
         }
@@ -58,51 +31,39 @@ class TicketController extends ApiController
         return new TicketResource($ticket);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function replace(ReplaceTicketRequest $request, $ticketId)
+    public function store(StoreTicketRequest $request)
     {
-        try {
-            $ticket = Ticket::findOrFail($ticketId);
-            $this->isAble('replace', $ticket);
-        } catch (ModelNotFoundException) {
-            return $this->error("Ticket cannot be found!", 404);
-        } catch (AuthorizationException) {
-            return $this->error("You are not authorized to replace this ticket!", 401);
+        if (! $this->isAble('store', Ticket::class)) {
+            return $this->unauthorized("You are not authorized to create this ticket!");
+        }
+
+        return new TicketResource(Ticket::create($request->mappedAttributes()));
+    }
+
+    public function replace(ReplaceTicketRequest $request, Ticket $ticket)
+    {
+        if (! $this->isAble('replace', $ticket)) {
+            return $this->unauthorized("You are not authorized to replace this ticket!");
         }
 
         $ticket->update($request->mappedAttributes());
         return new TicketResource($ticket);
     }
 
-    public function update(UpdateTicketRequest $request, $ticketId)
+    public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
-        try {
-            $ticket = Ticket::findOrfail($ticketId);
-            $this->isAble('update', $ticket);
-        } catch (ModelNotFoundException) {
-            return $this->error("Ticket cannot be found!", 404);
-        } catch (AuthorizationException) {
-            return $this->error("You are not authorized to update this ticket!", 401);
+        if (! $this->isAble('update', $ticket)) {
+            return $this->unauthorized("You are not authorized to update this ticket!");
         }
-        $attributes = $request->mappedAttributes();
-        $ticket->update($attributes);
+
+        $ticket->update($request->mappedAttributes());
         return new TicketResource($ticket);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($ticketId)
+    public function destroy(Ticket $ticket)
     {
-        try {
-            $ticket = Ticket::findOrFail($ticketId);
-            $this->isAble('destroy', $ticket);
-        } catch (ModelNotFoundException) {
-            return $this->error("Ticket cannot be found!", 404);
-        } catch (AuthorizationException) {
-            return $this->error("You are not authorized to delete this ticket!", 401);
+        if (! $this->isAble('destroy', $ticket)) {
+            return $this->unauthorized("You are not authorized to delete this ticket!");
         }
         $ticket->delete();
         return $this->ok('Ticket deleted!');

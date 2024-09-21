@@ -28,7 +28,7 @@ abstract class QueryFilter {
         return $builder;
     }
 
-    protected function filter(Array $arr) {
+    protected function filter(array $arr) {
         foreach ($arr as $key => $value) {
             if (method_exists($this, $key)) {
                 $this->$key($value);
@@ -46,8 +46,9 @@ abstract class QueryFilter {
                 $param = substr($param, 1);
             }
 
-            if(!in_array($param, $this->sortable) && !isset($this->sortable[$param]))
+            if(!in_array($param, $this->sortable) && !isset($this->sortable[$param])) {
                 continue;
+            }
 
             $columnName = $this->sortable[$param] ?? $param;
 

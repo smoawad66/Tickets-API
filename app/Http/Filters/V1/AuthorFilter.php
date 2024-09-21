@@ -7,9 +7,9 @@ use App\Models\User;
 class AuthorFilter extends QueryFilter {
 
     protected $sortable = [
+        'id',
         'name',
         'email',
-        'id',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',
     ];

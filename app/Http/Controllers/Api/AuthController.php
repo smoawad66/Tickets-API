@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginUserRequest;
+use App\Http\Requests\Api\RegisterUserRequest;
 use App\Models\User;
 use App\Permissions\V1\Abilities;
 use App\Traits\ApiResponses;
@@ -18,7 +19,6 @@ class AuthController extends Controller
         if (!Auth::attempt($request->only('email', 'password'))) {
             return $this->error('Invalid credentials!', 401);
         }
-
 
         $user = User::firstWhere('email', $request->email);
 
@@ -41,5 +41,12 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return $this->ok('Successful logout!');
+    }
+
+    public function register(RegisterUserRequest $request)
+    {
+        $user = User::create($request->validated());
+
+        return $this->ok('Successful registration!');
     }
 }

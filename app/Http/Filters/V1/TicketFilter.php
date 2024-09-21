@@ -7,9 +7,9 @@ use App\Models\Ticket;
 class TicketFilter extends QueryFilter {
 
     protected $sortable = [
+        'id',
         'title',
         'status',
-        'id',
         'createdAt' => 'created_at',
         'updatedAt' => 'updated_at',
     ];

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Exceptions\ApiExceptionsHandler;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -14,7 +15,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(
+            ApiExceptionsHandler::class,
+            fn() => new ApiExceptionsHandler
+        );
     }
 
     /**
